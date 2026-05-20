@@ -283,14 +283,12 @@ INSERT INTO `document_jenis` (`id_jdoc`, `jenis_doc`) VALUES
 CREATE TABLE IF NOT EXISTS `document_permissions` (
   `id` int NOT NULL AUTO_INCREMENT,
   `document_id` int NOT NULL,
-  `user_id` int DEFAULT NULL,
+  `is_private` tinyint(1) NOT NULL DEFAULT '1',
   `departement_id` int DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   KEY `document_id` (`document_id`) USING BTREE,
-  KEY `user_id` (`user_id`) USING BTREE,
   KEY `departement_id` (`departement_id`) USING BTREE,
   CONSTRAINT `dp_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-  CONSTRAINT `dp_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `dp_ibfk_3` FOREIGN KEY (`departement_id`) REFERENCES `departements` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 

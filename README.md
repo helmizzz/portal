@@ -20,4 +20,4 @@ Database :
 portalrev.sql
 
 Catatan :
-File php yang memiliki ..1.php merupakan backup, jadi file asli tanpa ..1.php (tanpa angka ..1.php)
+File php yang memiliki ..1.php merupakan asli, jadi file tanpa ..1.php itu adalah file backup!

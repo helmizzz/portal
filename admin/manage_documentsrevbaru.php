@@ -110,7 +110,7 @@ if (isset($_GET['action']) && in_array($_GET['action'], ['get_details', 'get_ver
     
     if ($_GET['action'] === 'get_details' && isset($_GET['type'])) {
         $type = $_GET['type'];
-        $response = ['departements' => [], 'users' => []];
+        $response = ['departements' => [], 'users' => [], 'access_type' => 'public'];
         $dept_table = $type . '_departments';
         $id_column = $type . '_id';
         $sql_depts = "SELECT departement_id FROM $dept_table WHERE $id_column = ?";
@@ -127,6 +127,23 @@ if (isset($_GET['action']) && in_array($_GET['action'], ['get_details', 'get_ver
         $stmt_users->execute();
         $result_users = $stmt_users->get_result();
         while($row = $result_users->fetch_assoc()) $response['users'][] = $row['user_id'];
+
+        if ($type === 'document') {
+            $stmt_perm = $conn->prepare("SELECT is_private, departement_id FROM document_permissions WHERE document_id = ?");
+            $stmt_perm->bind_param("i", $id);
+            $stmt_perm->execute();
+            $result_perm = $stmt_perm->get_result();
+            $response['departements'] = [];
+            $response['users'] = [];
+            while ($perm = $result_perm->fetch_assoc()) {
+                if ((int)$perm['is_private'] === 1) {
+                    $response['access_type'] = 'private';
+                    if (!empty($perm['departement_id'])) {
+                        $response['departements'][] = (int)$perm['departement_id'];
+                    }
+                }
+            }
+        }
         echo json_encode($response);
         exit();
     } elseif ($_GET['action'] === 'get_versions') {
@@ -915,8 +932,8 @@ $deptList = mysqli_query(
                             </select>
                             </div>
                             <div class="col-md-4">
-                            <label class="" for="jenis_dokumen">Private/Publik</label>
-                            <select name="jenis_dokumen" id="jenis_dokumen" class="form-select">
+                            <label class="" for="upload_access_type">Private/Publik</label>
+                            <select name="access_type" id="upload_access_type" class="form-select" required>
                                 <option value="">Pilih</option>
                                 <option value="private">Private</option>
                                 <option value="public">Public</option>
@@ -1008,8 +1025,8 @@ $deptList = mysqli_query(
                             </select>
                             </div>
                             <div class="col-md-4">
-                            <label class="" for="jenis_dokumen">Private/Publik</label>
-                            <select name="jenis_dokumen" id="jenis_dokumen" class="form-select">
+                            <label class="" for="edit_access_type">Private/Publik</label>
+                            <select name="access_type" id="edit_access_type" class="form-select" required>
                                 <option value="">Pilih Private/Publik</option>
                                 <option value="private">Private</option>
                                 <option value="public">Public</option>
@@ -1229,7 +1246,7 @@ $deptList = mysqli_query(
                 <td><p style="font-weight: bold; font-size: 13px;margin-top: 2px;margin-bottom: 0px;">Nama File : ${data.fileName}</p></td>
                 </tr>
                 <tr><td colspan="2"><p style="font-weight: bold; font-size: 12px;margin-top: 0px;margin-bottom: 0px;">Kode File : ${data.fileCode} | Departemen : ${data.dept} | ${data.size} </p></td></tr>
-                <tr><td colspan="2"><p style="font-size: 12px;margin-top: 0px;margin-bottom: 0px;">| Tahun : ${data.tahun} | Tanggal Upload : ${data.uploadedAt} |  Tanggal Update : ${data.updatedAt} |</p></td></tr>
+                <tr><td colspan="2"><p style="font-size: 12px;margin-top: 0px;margin-bottom: 0px;">| Tahun : ${data.tahun} | Tanggal Upload : ${data.uploadedAt} |  Tanggal Update : ${data.updatedAt} | Jenis File : ${data.type}</p></td></tr>
                 </table>
                 </div>
             `;
@@ -1368,6 +1385,7 @@ $deptList = mysqli_query(
                  // For now, standard select update
                  $('#edit_departements_access').val(data.departements).trigger('change');
                  $('#edit_users_access').val(data.users).trigger('change');
+                 $('#edit_access_type').val(data.access_type || ((data.departements.length || data.users.length) ? 'private' : 'public'));
                  editModal.show();
             });
         });
@@ -1560,6 +1578,7 @@ $deptList = mysqli_query(
                          // For now, standard select update
                          $('#edit_departements_access').val(data.departements).trigger('change');
                          $('#edit_users_access').val(data.users).trigger('change');
+                         $('#edit_access_type').val(data.access_type || ((data.departements.length || data.users.length) ? 'private' : 'public'));
                          new bootstrap.Modal(document.getElementById('EditFileModal')).show();
                     });
                 } else if (action === 'replace-document') {

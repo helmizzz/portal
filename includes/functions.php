@@ -123,4 +123,31 @@ function update_access_rules($conn, $id, $type, $departements_access = [], $user
         $stmt_user->close();
     }
 }
+
+function save_document_permission($conn, $document_id, $access_type, $departement_id = null) {
+    $stmt_delete = $conn->prepare("DELETE FROM document_permissions WHERE document_id = ?");
+    if ($stmt_delete) {
+        $stmt_delete->bind_param("i", $document_id);
+        $stmt_delete->execute();
+        $stmt_delete->close();
+    }
+
+    $is_private = $access_type === 'private' ? 1 : 0;
+    $departement_id = $is_private ? (int) $departement_id : null;
+
+    $stmt_insert = $conn->prepare("INSERT INTO document_permissions (document_id, is_private, departement_id) VALUES (?, ?, ?)");
+    if (!$stmt_insert) {
+        error_log("Failed to prepare document permission: " . $conn->error);
+        return false;
+    }
+
+    $stmt_insert->bind_param("iii", $document_id, $is_private, $departement_id);
+    $success = $stmt_insert->execute();
+    if (!$success) {
+        error_log("Failed to save document permission: " . $stmt_insert->error);
+    }
+    $stmt_insert->close();
+
+    return $success;
+}
 // tambahan 17/01

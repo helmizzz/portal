@@ -9,6 +9,7 @@ if (isset($_POST['upload'])) {
     $department_id = $_POST['department_id'] ?? '';
     $uploaded_by = $_SESSION['username'] ?? ''; // As per user query, linking by username
     $tahun_id = $_POST['tahun'] ?? ''; // This is the ID
+    $access_type = $_POST['access_type'] ?? 'private';
 
     // Validation
     if (empty($file_code) || empty($file_name) || empty($department_id) || empty($_FILES['file']['name'])) {
@@ -70,13 +71,20 @@ if (isset($_POST['upload'])) {
     $new_file_name = $custom_name . '.' . $file_ext;
 
     // --- PREVENTIF CEK 2: Apakah nama file sudah ada di database untuk tahun/dept ini? ---
-    $stmt_check_d = $conn->prepare("SELECT id FROM documents WHERE file_name = ? AND tahun = ? AND nama_dept = ?");
+    // Dokumen yang dihapus hanya di-soft delete (is_active = 0). Jika nama yang sama diupload ulang,
+    // record lama akan diaktifkan kembali setelah file berhasil dipindahkan.
+    $reactivate_doc_id = null;
+    $stmt_check_d = $conn->prepare("SELECT id, is_active FROM documents WHERE file_name = ? AND tahun = ? AND nama_dept = ? ORDER BY is_active DESC, id DESC LIMIT 1");
     $stmt_check_d->bind_param("sss", $new_file_name, $nama_tahun, $nama_dept);
     $stmt_check_d->execute();
-    if ($stmt_check_d->get_result()->num_rows > 0) {
-        $_SESSION['flash_message'] = "<div class='alert alert-warning'>nama file sudah tersedia</div>";
+    $existing_doc = $stmt_check_d->get_result()->fetch_assoc();
+    if ($existing_doc && (int)$existing_doc['is_active'] === 1) {
+        $_SESSION['flash_message'] = "<div class='alert alert-warning'>nama file sudah tersedia, hapus permanen dulu / ganti file dengan nama berbeda</div>";
         header("Location: manage_documentsrevbaru.php");
         exit();
+    }
+    if ($existing_doc) {
+        $reactivate_doc_id = (int)$existing_doc['id'];
     }
 
 
@@ -100,16 +108,24 @@ if (isset($_POST['upload'])) {
     $upload_path = $target_dir . $new_file_name;
 
     if (move_uploaded_file($file['tmp_name'], $upload_path)) {
-        $sql = "INSERT INTO documents (file_code, file_name, nama_dept, uploaded_at, created_by, tahun, file_path) VALUES (?, ?, ?, NOW(), ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        // Fix: Added 's' (or 'i') for the 5th parameter ($tahun). Assuming $tahun is string/int.
-        // "sssss" matches 5 variables
-        $stmt->bind_param("ssssss", $file_code, $new_file_name, $nama_dept, $uploaded_by, $nama_tahun, $upload_path);
+        if ($reactivate_doc_id) {
+            $sql = "UPDATE documents
+                    SET file_code = ?, file_name = ?, nama_dept = ?, uploaded_at = NOW(), created_by = ?, tahun = ?, file_path = ?, updated_at = NULL, title = NULL, is_active = 1
+                    WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ssssssi", $file_code, $new_file_name, $nama_dept, $uploaded_by, $nama_tahun, $upload_path, $reactivate_doc_id);
+        } else {
+            $sql = "INSERT INTO documents (file_code, file_name, nama_dept, uploaded_at, created_by, tahun, file_path) VALUES (?, ?, ?, NOW(), ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ssssss", $file_code, $new_file_name, $nama_dept, $uploaded_by, $nama_tahun, $upload_path);
+        }
+
         if ($stmt->execute()) {
-            $new_doc_id = $conn->insert_id;
-            $depts = $_POST['departements_access'] ?? [];
+            $new_doc_id = $reactivate_doc_id ?: $conn->insert_id;
+            $depts = $access_type === 'public' ? [] : [$department_id];
             $users = $_POST['users_access'] ?? [];
             update_access_rules($conn, $new_doc_id, 'document', $depts, $users);
+            save_document_permission($conn, $new_doc_id, $access_type, $department_id);
             $_SESSION['flash_message'] = "<div class='alert alert-success'>Dokumen berhasil diunggah!</div>";
         } else {
             $_SESSION['flash_message'] = "<div class='alert alert-danger'>Database Error: " . $stmt->error . "</div>";

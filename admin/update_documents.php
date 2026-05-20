@@ -10,6 +10,7 @@ if (isset($_POST['updateDocument'])) {
     $department_id = $_POST['department_id'] ?? '';
     $tahun_id = $_POST['tahun'] ?? '';
     $uploaded_by = $_SESSION['username'] ?? '';
+    $access_type = $_POST['access_type'] ?? 'private';
 
     // Validation
     if (empty($doc_id) || empty($file_code) || empty($file_name_input) || empty($department_id) || empty($tahun_id)) {
@@ -113,9 +114,10 @@ if (isset($_POST['updateDocument'])) {
     $stmt->bind_param("sssssi", $file_code, $final_file_name, $nama_dept, $nama_tahun, $final_file_path, $doc_id);
 
     if ($stmt->execute()) {
-        $depts = $_POST['departements_access'] ?? [];
+        $depts = $access_type === 'public' ? [] : [$department_id];
         $users = $_POST['users_access'] ?? [];
         update_access_rules($conn, $doc_id, 'document', $depts, $users);
+        save_document_permission($conn, $doc_id, $access_type, $department_id);
         $_SESSION['flash_message'] = "<div class='alert alert-success'>Dokumen berhasil diperbarui!</div>";
     } else {
         $_SESSION['flash_message'] = "<div class='alert alert-danger'>Gagal memperbarui database: " . $stmt->error . "</div>";
