@@ -1,0 +1,185 @@
+CREATE TABLE `users` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(50) NOT NULL UNIQUE,
+  `password` VARCHAR(255) NOT NULL,
+  `departement_id` INT(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `departements` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `folders` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `parent_id` INT(11) DEFAULT NULL,
+  `departement_id` INT(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`parent_id`) REFERENCES `folders`(`id`) ON DELETE CASCADE
+);
+
+CREATE TABLE `documents` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(255) NOT NULL,
+  `file_name` VARCHAR(255) NOT NULL,
+  `folder_id` INT(11) NOT NULL,
+  `departement_id` INT(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`folder_id`) REFERENCES `folders`(`id`) ON DELETE CASCADE
+);
+
+
+INSERT INTO `users` (`username`, `password`, `departement_id`) VALUES
+('admin', '$2y$10$GnYvbqHJCFJZA2j9SGUvju/O6vzDu7rGXXl4tMxcdgNX2xmluHS32', NULL);
+
+INSERT INTO `departements` (`name`) VALUES
+('IT');
+
+INSERT INTO `departements` (`name`) VALUES
+('HRD');
+
+INSERT INTO `users` (`username`, `password`, `departement_id`) VALUES
+('budi', '$2y$10$GnYvbqHJCFJZA2j9SGUvju/O6vzDu7rGXXl4tMxcdgNX2xmluHS32', 1),
+('siti', '$2y$10$GnYvbqHJCFJZA2j9SGUvju/O6vzDu7rGXXl4tMxcdgNX2xmluHS32', 2);
+
+ALTER TABLE `users` ADD `role` ENUM('admin', 'user') NOT NULL DEFAULT 'user';
+
+CREATE TABLE `document_permissions` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `document_id` INT(11) NOT NULL,
+  `user_id` INT(11) DEFAULT NULL,
+  `departement_id` INT(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`document_id`) REFERENCES `documents`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`departement_id`) REFERENCES `departements`(`id`) ON DELETE CASCADE
+);
+
+CREATE TABLE `carousel_images` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `image_name` varchar(255) NOT NULL,
+  `caption` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `activity_logs` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` INT(11) NOT NULL,
+  `activity_type` VARCHAR(255) NOT NULL,
+  `description` TEXT NOT NULL,
+  `document_id` INT(11) DEFAULT NULL,
+  `folder_id` INT(11) DEFAULT NULL,
+  `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `activity_logs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `document_versions` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `document_id` INT(11) NOT NULL,
+  `version_file_name` VARCHAR(255) NOT NULL,
+  `uploaded_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `user_id` INT(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `document_id` (`document_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `document_versions_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `document_versions_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 1. Membuat tabel 'roles'
+CREATE TABLE `roles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `role_name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `role_name` (`role_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Isi dengan role awal
+INSERT INTO `roles` (`id`, `role_name`, `description`) VALUES
+(1, 'Admin', 'Akses penuh ke semua fitur manajemen.'),
+(2, 'User', 'Akses dasar untuk melihat dokumen.');
+
+-- 2. Membuat tabel 'permissions'
+CREATE TABLE `permissions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `permission_name` varchar(255) NOT NULL COMMENT 'e.g., manage_users, view_documents',
+  `description` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `permission_name` (`permission_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Isi dengan beberapa hak akses dasar
+INSERT INTO `permissions` (`id`, `permission_name`, `description`) VALUES
+(1, 'manage_documents', 'Dapat menambah, mengedit, dan menghapus dokumen/folder.'),
+(2, 'manage_users', 'Dapat menambah, mengedit, dan menghapus pengguna.'),
+(3, 'manage_roles', 'Dapat mengelola peran dan hak aksesnya.'),
+(4, 'view_all_documents', 'Dapat melihat semua dokumen, terlepas dari departemen.');
+
+-- 3. Membuat tabel penghubung 'role_permissions'
+CREATE TABLE `role_permissions` (
+  `role_id` int(11) NOT NULL,
+  `permission_id` int(11) NOT NULL,
+  PRIMARY KEY (`role_id`,`permission_id`),
+  KEY `permission_id` (`permission_id`),
+  CONSTRAINT `role_permissions_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `role_permissions_ibfk_2` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Berikan semua hak akses ke role Admin
+INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
+(1, 1),
+(1, 2),
+(1, 3),
+(1, 4);
+
+-- 4. Mengubah tabel 'users'
+-- Pertama, tambahkan kolom baru role_id
+ALTER TABLE `users` ADD `role_id` INT(11) NULL DEFAULT '2' AFTER `password`;
+
+-- Update user yang ada berdasarkan role lama
+UPDATE `users` SET `role_id` = 1 WHERE `role` = 'admin';
+UPDATE `users` SET `role_id` = 2 WHERE `role` = 'user';
+
+-- Hapus kolom role yang lama
+ALTER TABLE `users` DROP COLUMN `role`;
+
+-- Tambahkan foreign key constraint
+ALTER TABLE `users` ADD CONSTRAINT `users_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE SET NULL;
+
+CREATE TABLE `notifications` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `message` text NOT NULL,
+  `link` varchar(255) DEFAULT NULL,
+  `is_read` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Menambahkan kolom is_active ke tabel users
+-- DEFAULT 1 berarti semua pengguna yang ada akan otomatis dianggap aktif
+ALTER TABLE `users`
+ADD `is_active` TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1 = Aktif, 0 = Nonaktif' AFTER `role_id`;
+
+CREATE TABLE `shared_links` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `document_id` int(11) NOT NULL,
+  `token` varchar(64) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `expires_at` datetime DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token` (`token`),
+  KEY `document_id` (`document_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `shared_links`
+  ADD CONSTRAINT `fk_shared_links_document_id` FOREIGN KEY (`document_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE;

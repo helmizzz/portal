@@ -1,0 +1,18 @@
+Bantu pengembangan lebih lanjut dengan penulisan full script tanpa dipotong-potong ataupun diberi note-note, jangan hapus fitur yang sudah ada dikarenakan pengembangan, tambahkan fitur tambahan sesuai instruksi, berdasarkan:
+Fitur-fitur ini membantu admin memastikan informasi penting benar-benar diterima dan dipahami oleh karyawan.
+ - Tombol "Sudah Baca & Paham" (Read & Acknowledge)
+    - Deskripsi: Untuk dokumen atau pengumuman yang sangat penting (misalnya: kebijakan perusahaan baru), tambahkan tombol "Saya Telah Membaca dan Memahami". Laporan Keterbacaan (readership_report.php) kemudian bisa didasarkan pada siapa yang sudah mengklik tombol ini, bukan hanya siapa yang "melihat".
+
+
+Bantu pengembangan lebih lanjut dengan penulisan full script tanpa dipotong-potong ataupun diberi note-note, jangan hapus fitur yang sudah ada dikarenakan pengembangan, tambahkan fitur tambahan sesuai instruksi, berdasarkan:
+ - Kuis Wajib per Dokumen
+    - Deskripsi: Untuk SOP yang krusial, admin bisa membuat kuis singkat untuk menguji pemahaman pengguna setelah mereka membaca dokumen. Pengguna harus lulus kuis sebelum dokumen tersebut dianggap "selesai dibaca".
+	
+
+Bantu pengembangan lebih lanjut dengan penulisan full script tanpa dipotong-potong ataupun diberi note-note, jangan hapus fitur yang sudah ada dikarenakan pengembangan, tambahkan fitur tambahan sesuai instruksi, berdasarkan:
+ - E Learning
+    - Deskripsi: Penambahkan menu E learning, dengan konsep admin akan melakukan upload video atau teks elearning yang bisa lebih dari satu dan bisa di share menggunakan token untuk user yang tidak bisa login, tambahkan tombol "Tandai Selesai" di setiap materi dan simpan datanya.
+	- Fitur e-learning ini dapat bersinergi dengan baik dengan fitur yang sudah Anda miliki:
+      - Notifikasi: Gunakan sistem notifikasi (lonceng) yang sudah ada untuk memberi tahu pengguna ketika ada kursus baru yang dipublikasikan.
+      - Laporan: Anda bisa membuat laporan baru yang mirip dengan readership_report.php untuk menunjukkan "Laporan Penyelesaian E-learning", yang menampilkan siapa saja yang sudah atau belum menyelesaikan kursus tertentu.
+      - Profil Pengguna: Halaman profil pengguna (profile.php) dapat ditambahkan bagian "Kursus yang Telah Selesai".

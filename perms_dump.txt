@@ -1,0 +1,10 @@
+manage_documents
+manage_elearning
+manage_events
+manage_polls
+manage_roles
+manage_users
+view_all_documents
+view_analytics
+view_audit_trail
+view_elearning_report

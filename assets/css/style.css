@@ -1,0 +1,709 @@
+/* TAMBAHAN BARU */
+/* sidebar */
+
+/* Container Utama */
+.grid-container {
+    display: flex;
+    flex-wrap: wrap;
+    /* Supaya kalau lebih dari 3, otomatis pindah ke bawah */
+    justify-content: center;
+    /* INI KUNCINYA: Membuat item selalu di tengah */
+    gap: 24px 32px;
+    /* Jarak antar box */
+    max-width: 1300px;
+    /* Batasi lebar maksimal (3 box x 160px + gap) */
+    margin: 0 auto;
+    /* Menengahkan seluruh container di dalam card */
+    padding: 20px 0;
+}
+
+/* Wrapper untuk satu shortcut (Box + Teks) */
+.shortcut-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 124px;
+    /* PC Width */
+}
+
+/* Box Putih (Persegi) */
+.square-box {
+    width: 100%;
+    /* Mengikuti lebar shortcut-item */
+    aspect-ratio: 1 / 1;
+    background-color: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    /* Shadow halus khas Odoo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    margin-bottom: 8px;
+    /* Jarak antara box dan teks */
+}
+
+.square-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Label Teks di bawah box */
+.shortcut-label {
+    font-size: 14px;
+    color: #4c4c4c;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Responsive Tablet (Max 991px) */
+@media (max-width: 991px) {
+    .sidebar {
+        height: 100%;
+        width: 250px;
+        /* Lebar sidebar */
+        position: fixed;
+        z-index: 1000;
+        top: 0;
+        left: 0;
+        background-color: #ffffff;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: 0.3s;
+        transform: translateX(-100%);
+        /* Sembunyi secara default */
+        display: none;
+        /* Sembunyi di desktop */
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+        display: block;
+    }
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Styling Tombol di Kiri */
+    .menu-toggler {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1100;
+        /* Di atas sidebar */
+        background: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        padding: 10px;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .hamburger-lines {
+        display: block;
+        height: 20px;
+        width: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .line {
+        display: block;
+        height: 3px;
+        width: 100%;
+        border-radius: 10px;
+        background: #714B67;
+        /* Warna Odoo */
+        transition: all 0.4s ease-in-out;
+    }
+
+    /* Animasi saat Aktif */
+    .menu-toggler.active .line1 {
+        transform: translateY(8.5px) rotate(45deg);
+    }
+
+    .menu-toggler.active .line2 {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    .menu-toggler.active .line3 {
+        transform: translateY(-8.5px) rotate(-45deg);
+    }
+
+    /* Penyesuaian Sidebar agar tidak tertutup tombol */
+    .sidebar-header {
+        padding: 20px;
+        margin-top: 60px;
+        /* Memberi ruang untuk tombol di kiri */
+    }
+
+    .shortcut-item {
+        width: 90px;
+        /* Tablet Width */
+    }
+
+    .square-box {
+        border-radius: 18px;
+    }
+
+    .grid-container {
+        gap: 16px 20px;
+    }
+
+    .shortcut-label {
+        font-size: 12px;
+    }
+}
+
+/* ==================================== */
+/* Global Styles                        */
+/* ==================================== */
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #e9ecef;
+    color: #343a40;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ==================================== */
+/* Dark Mode Styles                     */
+/* ==================================== */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+body.dark-mode .card {
+    background-color: #1e1e1e;
+    border-color: #333;
+    color: #e0e0e0;
+}
+
+body.dark-mode .navbar {
+    background-color: #1e1e1e !important;
+}
+
+body.dark-mode .list-group-item {
+    background-color: #1e1e1e;
+    border-color: #333;
+    color: #e0e0e0;
+}
+
+body.dark-mode .list-group-item-action:hover {
+    background-color: #2a2a2a;
+}
+
+body.dark-mode #document-tree .document-item.active {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+body.dark-mode .form-control::placeholder {
+    color: #888;
+}
+
+body.dark-mode .text-muted {
+    color: #9e9e9e !important;
+}
+
+body.dark-mode .modal-content {
+    background-color: #1e1e1e;
+}
+
+body.dark-mode .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+body.dark-mode hr {
+    background-color: #444;
+}
+
+body.dark-mode .table {
+    color: #e0e0e0;
+}
+
+body.dark-mode .table-hover>tbody>tr:hover>* {
+    color: #e0e0e0;
+    background-color: #2a2a2a;
+}
+
+body.dark-mode .table-striped>tbody>tr:nth-of-type(odd)>* {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+
+/* ==================================== */
+/* Header (Navbar)                      */
+/* ==================================== */
+.navbar {
+    background-color: #2c3e50 !important;
+    color: #ecf0f1;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* height: 50px; */
+}
+
+#adminNavbar .nav-link {
+    font-size: 0.85rem !important;
+    /* Tambahkan !important di sini */
+}
+
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+/* ==================================== */
+/* Main Container                       */
+/* ==================================== */
+.main-container {
+    flex-grow: 1;
+    display: flex;
+    padding: 20px;
+    overflow: hidden;
+    height: calc(100vh - 80px);
+}
+
+.main-container .row {
+    flex-grow: 1;
+    height: 100%;
+}
+
+.main-container .col-md-4,
+.main-container .col-md-8,
+.main-container .col-lg-3,
+.main-container .col-lg-9 {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* ==================================== */
+/* Side Panel (Dokumen)                 */
+/* ==================================== */
+.side-panel {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#document-search-input {
+    border-radius: 20px;
+    padding-left: 15px;
+}
+
+/* Penyesuaian ukuran font pada treeview */
+#document-tree {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.85rem;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+#document-tree ul {
+    list-style-type: none;
+    padding-left: 1rem;
+    font-size: 0.85rem;
+}
+
+#document-tree li {
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#document-tree .folder-item,
+#document-tree .document-item {
+    padding: 6px 10px;
+    border-radius: 5px;
+    margin-bottom: 2px;
+    transition: background-color 0.2s ease;
+}
+
+#document-tree .folder-item .folder-name-container,
+#document-tree .document-item .document-name {
+    cursor: pointer;
+}
+
+#document-tree .folder-item {
+    font-weight: 500;
+}
+
+#document-tree .document-item:hover {
+    background-color: #f8f9fa;
+}
+
+#document-tree .favorite-icon {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+#document-tree .favorite-icon:hover {
+    transform: scale(1.2);
+}
+
+/* Menggunakan Font Awesome untuk ikon folder dan file */
+#document-tree .folder-name::before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    content: "\f07b";
+    /* Ikon folder tertutup */
+    display: inline-block;
+    width: 1em;
+    margin-right: 5px;
+}
+
+#document-tree .folder-item.expanded>.folder-name-container>.folder-name::before {
+    content: "\f07c";
+    /* Ikon folder terbuka */
+}
+
+#document-tree .document-name::before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    content: "\f1c1";
+    /* Ikon file-pdf */
+    padding-left: 0.5em;
+    margin-right: 5px;
+}
+
+#document-tree .document-item.active {
+    background-color: #0d6efd;
+    color: #fff;
+    font-weight: 500;
+}
+
+/* ==================================== */
+/* PDF Viewer Panel                     */
+/* ==================================== */
+.pdf-viewer-panel {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.pdf-viewer-panel .card-body {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    height: 100%;
+}
+
+#no-document-selected {
+    font-size: 1.2rem;
+    color: #adb5bd;
+}
+
+#pdf-frame {
+    border-radius: 8px;
+    width: 100%;
+    height: 100%;
+}
+
+/* ==================================== */
+/* Responsiveness                       */
+/* ==================================== */
+@media (max-width: 768px) {
+    .main-container {
+        padding: 10px;
+    }
+
+    .main-container .row {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .main-container .col-md-4,
+    .main-container .col-md-8 {
+        width: 100%;
+        height: auto !important;
+    }
+
+    .side-panel {
+        height: 300px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+    }
+}
+
+/* ==================================== */
+/* Notification Styles                  */
+/* ==================================== */
+.notification-bell {
+    position: relative;
+    cursor: pointer;
+}
+
+.notification-bell .badge {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    padding: 3px 6px;
+    border-radius: 50%;
+    background: red;
+    color: white;
+    font-size: 0.65rem;
+}
+
+.notifications-dropdown {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    width: 350px;
+    max-height: 400px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1050;
+    display: none;
+}
+
+body.dark-mode .notifications-dropdown {
+    background: #1e1e1e;
+    border-color: #444;
+}
+
+.notifications-dropdown-header {
+    padding: 10px 15px;
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+}
+
+body.dark-mode .notifications-dropdown-header {
+    border-bottom-color: #444;
+}
+
+
+.notification-item {
+    display: block;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+body.dark-mode .notification-item {
+    border-bottom-color: #444;
+    color: #e0e0e0;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+
+body.dark-mode .notification-item:hover {
+    background-color: #2a2a2a;
+}
+
+.notification-item small {
+    display: block;
+    color: #888;
+    margin-top: 4px;
+}
+
+.notification-item.unread {
+    background-color: #e9f5ff;
+}
+
+body.dark-mode .notification-item.unread {
+    background-color: #2a3b4a;
+}
+
+.no-notification {
+    padding: 20px;
+    text-align: center;
+    color: #999;
+}
+
+/* Styling untuk Tombol Geser Tema di Navbar */
+.navbar .form-check-input {
+    min-height: 1.2rem;
+    width: 2.2rem;
+    margin-top: 0.4rem;
+}
+
+.navbar .form-check-label {
+    padding-top: 0.2rem;
+}
+
+/* ==================================== */
+/* Tambahan untuk Tampilan Responsif    */
+/* ==================================== */
+
+@media (max-width: 992px) {
+    .navbar-brand {
+        font-size: 1.2rem;
+        background-color: #2c3e50 !important;
+        color: #ecf0f1;
+    }
+
+    /* Atur ulang padding utama untuk tablet */
+    .main-container {
+        padding: 15px;
+        height: auto;
+        /* Biarkan tinggi menyesuaikan konten */
+    }
+}
+
+@media (max-width: 768px) {
+
+    .navbar-brand {
+        font-size: 1.2rem;
+        background-color: #2c3e50 !important;
+        color: #ecf0f1;
+    }
+
+    /* Atur ulang tata letak utama untuk handphone */
+    .main-container {
+        padding: 10px;
+    }
+
+    .main-container .row {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .main-container .col-md-4,
+    .main-container .col-md-8,
+    .main-container .col-lg-3,
+    .main-container .col-lg-9 {
+        width: 100%;
+        height: auto !important;
+        margin-bottom: 15px;
+        /* Beri jarak antar elemen */
+    }
+
+    /* Pastikan elemen terakhir tidak punya margin bawah */
+    .main-container .col-md-4:last-child,
+    .main-container .col-md-8:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Spesifik untuk halaman SOP */
+    .side-panel {
+        height: 350px;
+        /* Beri tinggi tetap untuk panel dokumen */
+        overflow-y: auto;
+        margin-bottom: 15px;
+    }
+
+    .pdf-viewer-panel {
+        height: 60vh;
+        /* Atur tinggi viewer PDF di mobile */
+    }
+
+    /* Perbaiki tampilan navbar di mobile */
+    .navbar-collapse .d-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+        width: 100%;
+    }
+
+    .navbar-collapse .d-flex .btn,
+    .navbar-collapse .d-flex .nav-item {
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    .navbar-collapse .d-flex .btn-outline-light {
+        width: auto;
+        /* Biarkan tombol logout menyesuaikan */
+    }
+}
+
+/* ==================================== */
+/* Sidebar Navigation Styles            */
+/* ==================================== */
+
+/* Sidebar Layout for Desktop */
+@media (min-width: 992px) {
+    .sidebar-nav {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 260px;
+        height: 100vh;
+        padding: 0;
+        overflow-y: auto;
+        z-index: 1040;
+        /* Above standard content */
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Shift content when sidebar is visible */
+    body.has-sidebar main,
+    body.has-sidebar .main-container,
+    body.has-sidebar .container:not(.fluid),
+    body.has-sidebar .container-fluid,
+    /* Be careful with this one */
+    body.has-sidebar footer {
+        margin-left: 260px;
+        width: auto;
+        transition: margin-left 0.3s ease;
+    }
+
+    /* Specific fix for dashboard main container */
+    body.has-sidebar main.container {
+        max-width: calc(100% - 260px);
+        margin-left: 260px;
+        margin-right: 0;
+    }
+
+    /* Hide the mobile toggle on desktop */
+    .mobile-nav-toggle {
+        display: none !important;
+    }
+}
+
+/* Sidebar Styling */
